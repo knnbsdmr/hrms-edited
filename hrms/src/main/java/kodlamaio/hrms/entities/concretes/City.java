@@ -14,31 +14,23 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper=false)
 @Data
 @Entity
-@Table(name="employers")
+@Table(name="cities")
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler","job_postings"})
-public class Employer{
+public class City {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "id")
-	private int employerId;
+	@Column(name = "cityid")
+	private int cityid;
 	
-	@Column(name="company_name")
-	private String companyName;
+	@Column(name = "cityname")
+	private String cityName;
 	
-	@Column(name="web_address")
-	private String webAddress;
-	
-	@Column(name="phone_number")
-	private String phoneNumber;
-	
-	@OneToMany(mappedBy = "employer")
+	@OneToMany(mappedBy = "city")
 	private List<JobPosting> job_postings;
 }
