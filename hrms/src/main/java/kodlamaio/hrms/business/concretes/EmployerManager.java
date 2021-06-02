@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.business.abstracts.EmployerService;
+import kodlamaio.hrms.core.utilities.helpers.abstracts.EmailService;
 import kodlamaio.hrms.core.utilities.results.DataResult;
 import kodlamaio.hrms.core.utilities.results.Result;
 import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
@@ -17,22 +18,23 @@ import kodlamaio.hrms.entities.concretes.Employer;
 public class EmployerManager implements EmployerService {
 
 	private EmployerDao employerDao;
-
+	private EmailService emailService;
+	
 	@Autowired
-	public EmployerManager(EmployerDao employerDao) {
-		super();
+	public EmployerManager(EmployerDao employerDao,EmailService emailService) {
 		this.employerDao = employerDao;
+		this.emailService=emailService;
 	}
 
 	@Override
 	public DataResult<List<Employer>> getAll() {
-		return new SuccessDataResult<List<Employer>>(this.employerDao.findAll(),"İş verenler listelendi");
+		return new SuccessDataResult<List<Employer>>(employerDao.findAll(), "Veriler başarıyla listelendi.");
 	}
 
 	@Override
-	public Result add(Employer employer) {
-		this.employerDao.save(employer);
-		return new SuccessResult("İş veren kullanıcı sisteme eklendi.");
+	public Result register(Employer employer) {
+		employerDao.save(employer);
+		emailService.sendEmail("Doğrulama işlemi başarılı bir şekilde gerçekleştirildi.");
+		return new SuccessResult("Kullanıcı başarılı bir şekilde kayıt oldu. Doğrulama işlemi için email adresinizi kontrol ediniz");
 	}
-
 }

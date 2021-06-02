@@ -4,48 +4,51 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import kodlamaio.hrms.business.abstracts.CandidateService;
-
-
+import kodlamaio.hrms.core.utilities.helpers.abstracts.EmailService;
+import kodlamaio.hrms.core.utilities.helpers.abstracts.EmailValidationService;
+import kodlamaio.hrms.core.utilities.helpers.abstracts.MernisService;
 import kodlamaio.hrms.core.utilities.results.DataResult;
 import kodlamaio.hrms.core.utilities.results.ErrorResult;
 import kodlamaio.hrms.core.utilities.results.Result;
 import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
-import kodlamaio.hrms.core.utilities.services.MernisCheckService;
 import kodlamaio.hrms.dataAccess.abstracts.CandidateDao;
 import kodlamaio.hrms.entities.concretes.Candidate;
 
-
 @Service
 public class CandidateManager implements CandidateService {
-
+	
 	private CandidateDao candidateDao;
-	private MernisCheckService<Candidate> mernisCheckService;
+	private MernisService mernisService;
+	private EmailService emailService;
+	private EmailValidationService emailValidationService;
 	
 	@Autowired
-	public CandidateManager(CandidateDao candidateDao, MernisCheckService<Candidate> mernisCheckService) {
+	public CandidateManager(CandidateDao candidateDao,MernisService mernisService,EmailService emailService,EmailValidationService emailValidationService) {
 		super();
 		this.candidateDao = candidateDao;
-		this.mernisCheckService = mernisCheckService;
+		this.mernisService=mernisService;
+		this.emailService= emailService;
+		this.emailValidationService = emailValidationService;
 	}
 
 	@Override
 	public DataResult<List<Candidate>> getAll() {
-		return new SuccessDataResult<List<Candidate>>(this.candidateDao.findAll(), "İş arayanlar listelendi");
+		return new SuccessDataResult<List<Candidate>>(this.candidateDao.findAll(), "Data listelendi.");
 	}
 
 	@Override
-	public Result add(@RequestBody Candidate candidate) {
-		if (!mernisCheckService.isMernis(candidate)) {
-			return new ErrorResult("Kimlik numarası hatalı !");
-		} else {
-			this.candidateDao.save(candidate);
-			return new SuccessResult(
-					" İş arayan kullanıcı sisteme eklendi.");
+	public Result register(Candidate candidate) {
+		Result result = new ErrorResult("Kayıt işlemi başarısız");
+		if(emailValidationService.emailValidation(candidate.getEmail()) 
+			&& mernisService.checkIfRealPerson(candidate)) {
+			emailService.sendEmail("Kayıt işleminin gerçekleşmesi için tarafınıza mail gönderilmiştir.");
+			candidateDao.save(candidate);
+			result =  new SuccessResult("Kayıt işlemi başarılı");
 		}
+		return result;
 	}
 
 }

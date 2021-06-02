@@ -4,41 +4,39 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper=false)
 @Data
 @Entity
 @Table(name="employers")
-@AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer","handler","job_postings"})
-public class Employer{
+@AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler","JobAdvertisement"})
+@EqualsAndHashCode(callSuper=false)
+public class Employer extends User {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "id")
-	private int employerId;
+	@Column(name="id")
+	@PrimaryKeyJoinColumn(name="id",referencedColumnName = "id")
+	private int id;
 	
-	@Column(name="company_name")
+	@Column(name="company_name",nullable = false,length = 255)
 	private String companyName;
 	
-	@Column(name="web_address")
-	private String webAddress;
+	@Column(name="web_site",nullable = false,length = 50)
+	private String webSite;
 	
-	@Column(name="phone_number")
+	@Column(name="phone_number",nullable = false,length = 12)
 	private String phoneNumber;
 	
 	@OneToMany(mappedBy = "employer")
-	private List<JobPosting> job_postings;
+	private List<JobAdvertisement> jobAdvertisements;
+	
 }
